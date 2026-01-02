@@ -95,7 +95,7 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
         )
             
         with output_container:
-            with st.spinner("Yichun was about to take his son for a bikeride, but now he has to help you..."):
+            with st.spinner("I was about to take my son for a bikeride, but now I have to help you..."):
                 placeholder = st.empty()
                 full_content = ""
                 
@@ -130,7 +130,7 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
         )
             
         with output_container:
-            with st.spinner("Yichun was about to take his son for a bikeride, but now he has to help you..."):
+            with st.spinner("I was about to take my son for a bikeride, but now I have to help you..."):
                 placeholder = st.empty()
                 full_content = ""
                 
