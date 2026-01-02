@@ -10,27 +10,27 @@
 
 ### 1. The Problem ###
 
-**User problem**
+**User problem**  
 Many students get a limited number of past paper questions to use for their revision for exams, and this can cause stress and a lack of confidence when going into an exam scenario.
 
-**Why AI?**
+**Why AI?**  
 This problem is solvable using AI and would be difficult for a human to solve as well, since universities and schools often times will not make new past paper materials for students to practice other than the ones they've already made. AI can help automate this especially with the assistance of RAG, since we can use it to 'train' the model on the specific notes and or example questions which the user wants to practice more of.
 
-**Success metric**
+**Success metric**  
 To measure success on this task, we can measure many things, but here we will mainly focus on the correctness of the questions provided (they can be answered) and also the following of difficulty and style of the question types provided.
 
 ### 2. The UX ###
 
-**Input**
+**Input**  
 The user can input a prompt to the agent asking for a particular type of question or question topic.
 The user can input a PDF of their course notes, and also a PDF or TXT document of example questions which they may have at hand.
 The user can input whether or not they would like a mark-scheme for the questions asked attached or not.
 
-**Process**
+**Process**  
 The inputs are then passed into the agent, whereby the documents provided are fed into the RAG system and embedded etc.
 The agents then begin, first of all the first draft (of questions) is created by an LLM, then that is sent to a marker agent which checks if the drafts are firstly doable, and secondly related heavily to the documents provided, then the marker agent passes this onto a refiner agent in order to take the instructions given by the marker agent on how to improve the first draft of questions, and then the refiner agent returns these questions to the user.
 
-**Output**
+**Output**  
 The agent will output a number of Exam style questions on what the user has asked for, and the agent will provide answers if answers are asked for.
 
 ### 3. Possible Failures of Product ###
@@ -40,7 +40,7 @@ The agent will output a number of Exam style questions on what the user has aske
 - inefficient use of agents
 - hallucinations
 
-**Fixes**
+**Fixes**  
 The slowness of loading has been looked at in many ways, but just as other companies have done as well, we will stream the tokens as they are generated so that the user sees something happen earlier than if not, and also funny comments are printed when the question is immediately transferred through the system, so that the user has something to look at and see that it is loading.
 
 The incorrectness of questions has been partially looked at by having this Generator-Marker-Refiner pattern in place.
@@ -71,8 +71,7 @@ N/A at the moment
 - If the model is too repetitive the questions may not be of use anymore.
 - If the questions don't provide realistic practice for students then students risk practicing the generated questions which may not actually help for the actual exam.
 
-**How to help these?**
-
+**How to help these?**  
 To help with jobs and integration, ensure the model is used to aid exam question makers work instead of replace it.
 If questions are too repetitive, we must evaluate this and then find a way to make more creativity (raise temp etc).
 If the questions aren't providing real value, we must evaluate this and we must look more into the product itself to see why the questions are different from the actual questions that students need to practice.
