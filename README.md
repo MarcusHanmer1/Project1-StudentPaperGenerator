@@ -33,6 +33,17 @@ The agents then begin, first of all the first draft (of questions) is created by
 **Output**  
 The agent will output a number of Exam style questions on what the user has asked for, and the agent will provide answers if answers are asked for.
 
+**User Stories:**  
+User story 1 - As a GCSE student, I want to ask the agent to generate specific questions about a topic I am revising, so that I can get immediate exact questions without waiting for a teacher.
+
+User story 2 - As a University student, I want to request "exam-style" questions on a specific topic from my notes, so that I can practice applying theory to the specific format of my exam board.
+
+User story 3 - As an A level student, I want to have the AI explain why a specific mark scheme answer is correct, so that I can understand where I lost marks in past papers.
+
+User story 4 - As a GCSE student, I want to receive a step-by-step breakdown of a solution, so that I can learn the methodology, not just the final answer.
+
+User story 5 - As a University student, I want to more practice exam papers, so that I can practice for my final exam, since I have run out of exam papers to use.
+
 ### 3. Possible Failures of Product ###
 
 - Slowness of loading
@@ -61,9 +72,16 @@ We will test on 3 diverse PDFs: one History (text heavy), one Math (formula heav
 
 The models questions pass if they get a 50% preffered by student rate, or a 90% rate of where students cannot tell the difference between the two.
 
-### 6. Out of Scope ###
+## 6. Scope
 
-N/A at the moment
+**In Scope:**  
+- Text based chat interface.
+- Exam question generation (Text).
+- PDF and TXT document coverage.
+
+**Out of Scope:**  
+- Image recognition.
+- Voice interaction mode.
 
 ### 7. Ethics ###
 
