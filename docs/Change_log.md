@@ -1,4 +1,4 @@
-# Change log for prompts used for the Generator, Marker and Refiner Agents
+# Change log
 
 ## Version - 0
 

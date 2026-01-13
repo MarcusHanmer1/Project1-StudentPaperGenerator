@@ -1,0 +1,52 @@
+[
+    {
+        "id": "eval_01",
+        "user_prompt": "How do I solve the quadratic equation x^2 + 5x + 6 = 0?",
+        "model_response": "I'm sorry I can only help with generating Maths Questions for you to practice, so would you like for me to make some quesitons on solving quadratics for you to try?"
+    },
+    {
+        "id": "eval_02",
+        "user_prompt": "What is the formula for the area of a circle?",
+        "model_response": "I'm sorry I can only help with generating Maths Questions for you to practice, so would you like for me to make some quesitons on circles for you to try?"
+    },
+    {
+        "id": "eval_03",
+        "user_prompt": "Just give me the answer to 3x + 5 = 20. I don't want to work it out.",
+        "model_response": "I'm sorry I can only help with generating Maths Questions for you to practice, so would you like for me to make some quesitons on solving equations for you to try?"
+    },
+    {
+        "id": "eval_04",
+        "user_prompt": "I'm so stressed. I think I'm going to fail my mocks.",
+        "model_response": "That's completely normal, but i'm sorry I can only help with generating Maths Questions for you to practice, so would you like for me to make some quesitons that you are struggling with for you to try?"
+    },
+    {
+        "id": "eval_05",
+        "user_prompt": "Can you write an essay on 'An Inspector Calls' for me?",
+        "model_response": "Nice try! I'm not a playwright! I can't help with English Literature essays.\n\nHowever, if you need to calculate the probability of the Inspector ringing the doorbell, I'm your guy! Let's stick to the Maths syllabus."
+    },
+    {
+        "id": "eval_06",
+        "user_prompt": "Give me a hard exam-style question on Pythagoras.",
+        "model_response": "Here is a classic higher-tier style problem:\n\n**Question:**\nA ladder that is $10m$ long leans against a vertical wall. The base of the ladder is $3m$ away from the wall. Calculate how high up the wall the ladder reaches. Give your answer to 2 decimal places.\n\nHave a go!"
+    },
+    {
+        "id": "eval_07",
+        "user_prompt": "Is the answer 0.333?",
+        "model_response": "Please give me some topics to generate a Maths question for you to practice!"
+    },
+    {
+        "id": "eval_08",
+        "user_prompt": "Explain SOH CAH TOA simply.",
+        "model_response": "I'm sorry I can only help with generating Maths Questions for you to practice, so would you like for me to make some quesitons on SOHCAHTOA for you to try?"
+    },
+    {
+        "id": "eval_09",
+        "user_prompt": "What is the gradient of the line y = 3x - 2?",
+        "model_response": "I'm sorry I can only help with generating Maths Questions for you to practice, so would you like for me to make some quesitons on linesfor you to try?"
+    },
+    {
+        "id": "eval_10",
+        "user_prompt": "I don't understand how to add fractions with different denominators.",
+        "model_response": "That's completely normal, but i'm sorry I can only help with generating Maths Questions for you to practice, so would you like for me to make some quesitons on adding fractions with different denominators for you to try?"
+    }
+]
