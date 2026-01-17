@@ -27,7 +27,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<h1 class="title-font">Welcome</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subheader-font">The AI Exam Question Generator</p>', unsafe_allow_html=True)
+st.markdown('<p class="subheader-font">The AI Maths Exam Question Generator</p>', unsafe_allow_html=True)
 
 with st.sidebar:
     st.header("Your Inputs")

@@ -78,9 +78,9 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         
         generator_prompt_template_str = """
         You are an expert Maths exam question generator. Your task is to create a set of questions FOR ONLY MATHS based on the user's request.
-        You MUST use the provided context from the course material.
-        You MUST match the style, tone, and difficulty of the example questions.
-        If the content is NOT related to MATHS, respond with "The provided context is not related to Maths. Please ask for some Maths related content!"
+        You MUST use the provided context from the course material if provided.
+        You MUST match the style, tone, and difficulty of the example questions if provided.
+        If the content is NOT related to MATHS, you MUST respond with "The provided context is not related to Maths. Please ask for some Maths related content!"
         {answer_key_request}
 
         **CONTEXT FROM COURSE MATERIAL:**
@@ -90,7 +90,7 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         **USER REQUEST:**
         {request}
 
-        **(You MUST format your entire response using rich Markdown. Use lists, bolding, and LaTeX for any mathematical expressions):**
+        **You MUST format your entire response using Markdown, using LaTeX for any mathematical expressions.**
         """
         
         generator_prompt = PromptTemplate.from_template(generator_prompt_template_str)
@@ -107,24 +107,24 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         marker_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.2)
         
         marker_prompt_template_str = """
-        You are an expert 'Marker' agent of Maths exam questions, a harsh and strict exam question creator.
-        Your job is to write an internal critique of the provided questions.
+        You are an expert 'Marker' agent of ONLY Maths exam questions, you are a harsh and strict exam question creator.
+        Your job is to write an internal critique of the provided questions, which MUST be about MATHS ONLY.
         You must be BRUTALLY HONEST. The user will NOT see this. Your critique will be used to fix the questions and make them PERFECT.
-        Focus on 100% factual accuracy of the questions AND the answer key.
+        Focus on perfect factual accuracy of the questions AND the answer key.
 
         **THE RUBRIC (Be harsh):**
-        1.  **Factual Accuracy:** Are the questions AND the answer key 100% correct according to the CONTEXT? Point out every single error.
-        2.  **Prompt Relevance:** Do the questions directly address the USER'S REQUEST?
-        3.  **Style Match:** Do the questions match the style of the EXAMPLE QUESTIONS?
+        1.  **Factual Accuracy:** Are the questions AND the answer key EXACTLY correct according to the CONTEXT? Point out every single error.
+        2.  **Prompt Relevance:** Do the questions directly address the USER'S REQUEST and follow the rules for MATHS ONLY?
+        3.  **Style Match:** Do the questions match the style of the EXAMPLE QUESTIONS if provided?
         4.  **Answer Key (if requested):** Was the instruction '{answer_key_request}' followed perfectly? Is the answer key detailed and correct?
 
-        **--- INPUTS FOR YOUR REVIEW ---**
+        **INPUTS FOR YOUR REVIEW**
         1. CONTEXT FROM COURSE MATERIAL: {context}
         2. EXAMPLE QUESTIONS (The style to match): {examples}
         3. USER'S ORIGINAL REQUEST: {request}
         4. THE questions (Your target for critique): {v1_draft}
 
-        **--- YOUR TASK ---**
+        **YOUR TASK**
         Provide a concise, constructive, and harsh critique. List every single error you find.
         If there are no errors, simply write "PERFECT".
         """
@@ -151,7 +151,7 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
             You must fix every point in the critique. Do not add your own opinions.
             You MUST preserve the original format, including the '---ANSWER KEY---' separator.
 
-            **--- INPUTS ---**
+            **INPUTS**
             
             1. USER'S ORIGINAL REQUEST: {request}
             
@@ -161,11 +161,11 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
             3. THE 'HARSH CRITIQUE' (The issues you must fix):
             {critique}
             
-            **--- YOUR TASK ---**
+            **YOUR TASK**
             Rewrite the generated questions to perfectly fix all issues from the 'Critique'.
             Output *only* the final, corrected text.
             
-            **REFINED perfect questions (You MUST format your entire response using rich Markdown. Use lists, bolding, and LaTeX for any mathematical expressions. Preserve the '---ANSWER KEY---' separator):**
+            **REFINED perfect questions (You MUST format your entire response using Markdown, using LaTeX for any mathematical expressions. Preserve the '---ANSWER KEY---' separator)**
             """
             
             refiner_prompt = PromptTemplate.from_template(refiner_prompt_template_str)
