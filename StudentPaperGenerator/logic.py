@@ -77,9 +77,10 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         generator_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.7)
         
         generator_prompt_template_str = """
-        You are an expert exam question generator. Your task is to create a set of questions based on the user's request.
+        You are an expert Maths exam question generator. Your task is to create a set of questions FOR ONLY MATHS based on the user's request.
         You MUST use the provided context from the course material.
         You MUST match the style, tone, and difficulty of the example questions.
+        If the content is NOT related to MATHS, respond with "The provided context is not related to Maths. Please ask for some Maths related content!"
         {answer_key_request}
 
         **CONTEXT FROM COURSE MATERIAL:**
@@ -106,7 +107,7 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         marker_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.2)
         
         marker_prompt_template_str = """
-        You are an expert 'Marker' agent of exam questions, a harsh and strict university exam question creator.
+        You are an expert 'Marker' agent of Maths exam questions, a harsh and strict exam question creator.
         Your job is to write an internal critique of the provided questions.
         You must be BRUTALLY HONEST. The user will NOT see this. Your critique will be used to fix the questions and make them PERFECT.
         Focus on 100% factual accuracy of the questions AND the answer key.
@@ -146,7 +147,7 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
             refiner_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.05)
             
             refiner_prompt_template_str = """
-            You are an expert 'Refiner' agent. Your job is to rewrite the questions to fix all issues from a 'Critique'.
+            You are an expert maths exam question 'Refiner' agent. Your job is to rewrite the questions to fix all issues from a 'Critique'.
             You must fix every point in the critique. Do not add your own opinions.
             You MUST preserve the original format, including the '---ANSWER KEY---' separator.
 
