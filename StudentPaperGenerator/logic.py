@@ -77,10 +77,11 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         generator_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.7)
         
         generator_prompt_template_str = """
-        You are an expert Maths exam question generator. Your task is to create a set of questions FOR ONLY MATHS based on the user's request.
-        You MUST use the provided context from the course material if provided.
-        You MUST match the style, tone, and difficulty of the example questions if provided.
-        If the content is NOT related to MATHS, you MUST respond with "The provided context is not related to Maths. Please ask for some Maths related content!"
+        You are an expert MATHS exam question generator.
+        You MUST ONLY generate questions ABOUT MATHS.
+        You must use the provided context from the course material if provided, if it is about MATHS.
+        You MUST match the style, tone, and difficulty of the example questions if provided, if they are about MATHS.
+        If the content is NOT related to MATHS, you MUST respond with "WOWOWOW That isn't Maths! Please ask for some Maths related content or get out of here!"
         {answer_key_request}
 
         **CONTEXT FROM COURSE MATERIAL:**
@@ -107,16 +108,18 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         marker_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.2)
         
         marker_prompt_template_str = """
-        You are an expert 'Marker' agent of ONLY Maths exam questions, you are a harsh and strict exam question creator.
-        Your job is to write an internal critique of the provided questions, which MUST be about MATHS ONLY.
+        You are an expert 'Marker' agent of ONLY Maths exam questions.
+        You are a harsh and strict exam question analyser.
+        Your job is to write an internal critique of the provided questions.
         You must be BRUTALLY HONEST. The user will NOT see this. Your critique will be used to fix the questions and make them PERFECT.
         Focus on perfect factual accuracy of the questions AND the answer key.
 
         **THE RUBRIC (Be harsh):**
-        1.  **Factual Accuracy:** Are the questions AND the answer key EXACTLY correct according to the CONTEXT? Point out every single error.
+        1.  **Factual Accuracy:** Are the questions AND the answer key EXACTLY correct according to the CONTEXT, given it should only be about Maths? Point out every single error.
         2.  **Prompt Relevance:** Do the questions directly address the USER'S REQUEST and follow the rules for MATHS ONLY?
-        3.  **Style Match:** Do the questions match the style of the EXAMPLE QUESTIONS if provided?
+        3.  **Style Match:** Do the questions match the style of the EXAMPLE QUESTIONS if provided, given they are about MATHS?
         4.  **Answer Key (if requested):** Was the instruction '{answer_key_request}' followed perfectly? Is the answer key detailed and correct?
+        5. **Checking non-Maths content:** If the CONTEXT is not about MATHS, did you correctly identify this and respond with "WOWOWOW That isn't Maths! Please ask for some Maths related content or get out of here!"?
 
         **INPUTS FOR YOUR REVIEW**
         1. CONTEXT FROM COURSE MATERIAL: {context}
@@ -147,19 +150,18 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
             refiner_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.05)
             
             refiner_prompt_template_str = """
-            You are an expert maths exam question 'Refiner' agent. Your job is to rewrite the questions to fix all issues from a 'Critique'.
+            You are an expert maths exam question 'Refiner' agent. 
+            Your job is to rewrite the questions to fix all issues from a 'Critique'.
             You must fix every point in the critique. Do not add your own opinions.
             You MUST preserve the original format, including the '---ANSWER KEY---' separator.
 
             **INPUTS**
             
-            1. USER'S ORIGINAL REQUEST: {request}
-            
-            2. THE generated questions (The original version):
+            1. THE generated questions (The original version):
             {v1_draft}
             
-            3. THE 'HARSH CRITIQUE' (The issues you must fix):
-            {critique}
+            2. THE 'HARSH CRITIQUE' (The issues you must fix):
+            {critique_content}
             
             **YOUR TASK**
             Rewrite the generated questions to perfectly fix all issues from the 'Critique'.
