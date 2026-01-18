@@ -4,7 +4,7 @@ import streamlit as st
 import re
 import logic
 
-st.set_page_config(page_title="Exam Generator", layout="wide")
+st.set_page_config(page_title="Exam Question Generator", layout="wide")
 
 st.markdown("""
 <style>
@@ -60,7 +60,7 @@ def display_final_output(final_content):
         elif include_answer_key:
             st.warning("The AI was asked for an answer key but failed to provide one. Try re-phrasing your prompt.")
 
-if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on social deviance'"):
+if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on Solving Equations.'"):
     
     output_container.empty()
     
