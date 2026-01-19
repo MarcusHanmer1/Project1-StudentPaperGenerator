@@ -172,7 +172,6 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
             
             refiner_prompt = PromptTemplate.from_template(refiner_prompt_template_str)
             refiner_final_prompt = refiner_prompt.format(
-                request=user_prompt,
                 v1_draft=v1_draft,
                 critique=critique_content
             )
