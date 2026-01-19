@@ -72,16 +72,16 @@ def check_if_math_related(user_prompt: str) -> bool:
         judge_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.0)
         
         judge_template = """
-        You are a strict classifier for a Math Exam Question Generator.
-        Analyze the user's request.
-        
-        1. If the request is about generating math questions, solving math problems, physics calculations, or logic puzzles typically found in math exams, output: MATH
-        2. If the request is about coding (writing scripts), creative writing, history, general chat, or anything else, output: NON_MATH
-        
-        USER REQUEST: {request}
-        
-        OUTPUT (MATH or NON_MATH):
-        """
+You are a strict classifier for a Math Exam Question Generator.
+Analyze the user's request.
+
+1. If the request is about generating math questions, solving math problems, physics calculations, or logic puzzles typically found in math exams, output: MATH
+2. If the request is about coding (writing scripts), creative writing, history, general chat, or anything else, output: NON_MATH
+
+USER REQUEST: {request}
+
+OUTPUT (MATH or NON_MATH):
+"""
         
         prompt = PromptTemplate.from_template(judge_template)
         chain = prompt | judge_llm
@@ -91,11 +91,17 @@ def check_if_math_related(user_prompt: str) -> bool:
         
         print(f"Gatekeeper Judgement: {clean_result}")
         
-        return "MATH" in clean_result
+        if clean_result == "MATH":
+            return True
+        elif clean_result == "NON_MATH":
+            return False
+        else:
+            print(f"Unexpected gatekeeper response: {clean_result}")
+            return False
         
     except Exception as e:
         print(f"Gatekeeper Error: {e}")
-        return True
+        return False
 
 # main pipeline
 

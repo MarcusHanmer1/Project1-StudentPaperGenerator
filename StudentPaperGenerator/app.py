@@ -40,27 +40,35 @@ with st.sidebar:
 output_container = st.container()
 
 def display_final_output(final_content):
+    """Display the final output with proper formatting and error handling."""
+    
     if final_content.startswith("An error occurred:"):
         output_container.error(final_content)
         return
-
-    if "Request Denied" in final_content:
-        output_container.warning(final_content)
+    
+    if "🚫 Request Denied" in final_content or "Request Denied" in final_content:
+        output_container.error(final_content)
+        st.info("💡 **Tip**: This tool is specifically designed for mathematics questions. Try asking for:\n"
+                "- Algebra problems\n"
+                "- Calculus questions\n"
+                "- Geometry exercises\n"
+                "- Statistics problems\n"
+                "- Logic puzzles")
         return
-
-    parts = re.split(r'\s*---ANSWER KEY---\s*', final_content, 1, re.IGNORECASE)
+    
+    parts = re.split(r'\s*---ANSWER KEY---\s*', final_content, maxsplit=1, flags=re.IGNORECASE)
     questions = parts[0]
     
     with output_container:
-        st.success("Generation Complete")
+        st.success("✅ Generation Complete")
         st.markdown(questions)
         
         if len(parts) > 1 and parts[1].strip():
             answers = parts[1]
-            with st.expander("Click to see Answer Key"):
+            with st.expander("📝 Click to see Answer Key"):
                 st.markdown(answers)
         elif include_answer_key:
-            st.warning("The AI was asked for an answer key but failed to provide one. Try re-phrasing your prompt.")
+            st.warning("⚠️ The AI was asked for an answer key but didn't provide one. Try re-phrasing your prompt.")
 
 if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on Solving Equations.'"):
     
@@ -72,11 +80,15 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
            'processed_pdf_name' not in st.session_state or \
            st.session_state.processed_pdf_name != pdf_file.name:
             
-            st.toast(f"Processing '{pdf_file.name}'...")
+            st.toast(f"📄 Processing '{pdf_file.name}'...")
             st.session_state.vector_store = logic.get_vector_store_from_pdf(pdf_file)
             st.session_state.processed_pdf_name = pdf_file.name
         
         vector_store = st.session_state.vector_store
+        
+        if vector_store is None:
+            output_container.error("❌ Failed to process the PDF file. Please check the file and try again.")
+            st.stop()
 
         if 'example_text' not in st.session_state or \
            'processed_example_name' not in st.session_state or \
@@ -84,7 +96,7 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
            (not example_file and st.session_state.processed_example_name is not None):
             
             if example_file:
-                st.toast(f"Processing '{example_file.name}'...")
+                st.toast(f"📋 Processing '{example_file.name}'...")
             st.session_state.example_text = logic.get_text_from_file(example_file)
             st.session_state.processed_example_name = example_file.name if example_file else None
 
@@ -97,7 +109,7 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
         )
             
         with output_container:
-            with st.spinner("I was about to take my son for a bikeride, but now I have to help you..."):
+            with st.spinner("🤔 Generating your math questions..."):
                 placeholder = st.empty()
                 full_content = ""
                 
@@ -106,7 +118,6 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
                         full_content += chunk.content
                         placeholder.markdown(full_content + " ▌")
         
-
         placeholder.empty()
         
         display_final_output(full_content)
@@ -119,7 +130,7 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
            (not example_file and st.session_state.processed_example_name is not None):
             
             if example_file:
-                st.toast(f"Processing '{example_file.name}'...")
+                st.toast(f"📋 Processing '{example_file.name}'...")
             st.session_state.example_text = logic.get_text_from_file(example_file)
             st.session_state.processed_example_name = example_file.name if example_file else None
 
@@ -132,7 +143,7 @@ if user_prompt := st.chat_input("e.g., 'Generate 5 multiple-choice questions on 
         )
             
         with output_container:
-            with st.spinner("I was about to take my son for a bikeride, but now I have to help you..."):
+            with st.spinner("🤔 Generating your math questions..."):
                 placeholder = st.empty()
                 full_content = ""
                 
