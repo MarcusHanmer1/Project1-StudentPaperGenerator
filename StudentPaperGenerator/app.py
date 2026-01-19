@@ -40,17 +40,19 @@ with st.sidebar:
 output_container = st.container()
 
 def display_final_output(final_content):
-
     if final_content.startswith("An error occurred:"):
         output_container.error(final_content)
+        return
+
+    if "Request Denied" in final_content:
+        output_container.warning(final_content)
         return
 
     parts = re.split(r'\s*---ANSWER KEY---\s*', final_content, 1, re.IGNORECASE)
     questions = parts[0]
     
     with output_container:
-
-        st.info("Generation Complete") 
+        st.success("Generation Complete")
         st.markdown(questions)
         
         if len(parts) > 1 and parts[1].strip():

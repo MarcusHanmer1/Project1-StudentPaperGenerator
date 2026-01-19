@@ -3,6 +3,7 @@
 import os
 from dotenv import load_dotenv
 from pypdf import PdfReader
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_community.vectorstores import FAISS
@@ -16,14 +17,38 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
     raise ValueError("Google API Key not found. Please set it in your .env file.")
 
+# helper functions
+
+def _string_to_stream(s: str):
+    """Wraps a string in a generator to mimic an LLM stream."""
+    yield AIMessageChunk(content=s)
+
+def get_text_from_file(_example_file):
+    """Reads text from an uploaded file (PDF or TXT)."""
+    if _example_file is None:
+        return ""
+    try:
+        if _example_file.type == "text/plain":
+            return _example_file.read().decode("utf-8")
+        elif _example_file.type == "application/pdf":
+            pdf_reader = PdfReader(_example_file)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text() or ""
+            return text
+    except Exception as e:
+        print(f"Error in get_text_from_file: {e}")
+        return ""
+    return ""
+
 def get_vector_store_from_pdf(_pdf_file):
-    """ Processes the PDF file and returns a FAISS vector store. """
+    """Processes the PDF file and returns a FAISS vector store."""
     if _pdf_file is not None:
         try:
             pdf_reader = PdfReader(_pdf_file)
             text = ""
             for page in pdf_reader.pages:
-                text += page.extract_text()
+                text += page.extract_text() or ""
             
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000, chunk_overlap=200, length_function=len
@@ -37,34 +62,57 @@ def get_vector_store_from_pdf(_pdf_file):
             print(f"Error in get_vector_store_from_pdf: {e}")
             return None
 
-def get_text_from_file(_example_file):
-    """Reads text from an uploaded file (PDF or TXT)."""
-    if _example_file is None:
-        return ""
-    try:
-        if _example_file.type == "text/plain":
-            return _example_file.read().decode("utf-8")
-        elif _example_file.type == "application/pdf":
-            pdf_reader = PdfReader(_example_file)
-            text = ""
-            for page in pdf_reader.pages:
-                text += page.extract_text()
-            return text
-    except Exception as e:
-        print(f"Error in get_text_from_file: {e}")
-        return ""
-    return ""
 
-def _string_to_stream(s: str):
-    """Wraps a string in a generator to mimic an LLM stream."""
-    yield AIMessageChunk(content=s)
+def check_if_math_related(user_prompt: str) -> bool:
+    """
+    Uses a fast LLM call to judge if the user's prompt is related to Mathematics.
+    Returns True if Math, False otherwise.
+    """
+    try:
+        judge_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.0)
+        
+        judge_template = """
+        You are a strict classifier for a Math Exam Question Generator.
+        Analyze the user's request.
+        
+        1. If the request is about generating math questions, solving math problems, physics calculations, or logic puzzles typically found in math exams, output: MATH
+        2. If the request is about coding (writing scripts), creative writing, history, general chat, or anything else, output: NON_MATH
+        
+        USER REQUEST: {request}
+        
+        OUTPUT (MATH or NON_MATH):
+        """
+        
+        prompt = PromptTemplate.from_template(judge_template)
+        chain = prompt | judge_llm
+        result = chain.invoke({"request": user_prompt})
+        
+        clean_result = result.content.strip().upper()
+        
+        print(f"Gatekeeper Judgement: {clean_result}")
+        
+        return "MATH" in clean_result
+        
+    except Exception as e:
+        print(f"Gatekeeper Error: {e}")
+        return True
+
+# main pipeline
 
 def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answer_key):
     """
-    Runs the full 3-agent (Generate, Critique, Refine) RAG pipeline.
-    Returns a STREAM of the final, refined text.
+    Runs the full agentic pipeline: Gatekeeper -> Generator -> Marker -> Refiner.
     """
     try:
+        is_math = check_if_math_related(user_prompt)
+        if not is_math:
+            return _string_to_stream(
+                "### 🚫 Request Denied\n\n"
+                "I am a specialized **Math Exam Question Generator**. "
+                "Your request does not appear to be related to mathematics or exam preparation. "
+                "Please refine your prompt to ask for math questions, calculations, or logic problems."
+            )
+
         retriever = vector_store.as_retriever(search_k=7)
         relevant_docs = retriever.invoke(user_prompt)
         context_text = "\n\n---\n\n".join([doc.page_content for doc in relevant_docs])
@@ -79,9 +127,8 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         generator_prompt_template_str = """
         You are an expert MATHS exam question generator.
         You MUST ONLY generate questions ABOUT MATHS.
-        You must use the provided context from the course material if provided, if it is about MATHS.
-        You MUST match the style, tone, and difficulty of the example questions if provided, if they are about MATHS.
-        If the content is NOT related to MATHS, you MUST respond with "WOWOWOW That isn't Maths! Please ask for some Maths related content or get out of here!"
+        You must use the provided context from the course material if provided.
+        You MUST match the style, tone, and difficulty of the example questions if provided.
         {answer_key_request}
 
         **CONTEXT FROM COURSE MATERIAL:**
@@ -115,11 +162,10 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
         Focus on perfect factual accuracy of the questions AND the answer key.
 
         **THE RUBRIC (Be harsh):**
-        1.  **Factual Accuracy:** Are the questions AND the answer key EXACTLY correct according to the CONTEXT, given it should only be about Maths? Point out every single error.
+        1.  **Factual Accuracy:** Are the questions AND the answer key EXACTLY correct according to the CONTEXT? Point out every single error.
         2.  **Prompt Relevance:** Do the questions directly address the USER'S REQUEST and follow the rules for MATHS ONLY?
-        3.  **Style Match:** Do the questions match the style of the EXAMPLE QUESTIONS if provided, given they are about MATHS?
+        3.  **Style Match:** Do the questions match the style of the EXAMPLE QUESTIONS?
         4.  **Answer Key (if requested):** Was the instruction '{answer_key_request}' followed perfectly? Is the answer key detailed and correct?
-        5. **Checking non-Maths content:** If the CONTEXT is not about MATHS, did you correctly identify this and respond with "WOWOWOW That isn't Maths! Please ask for some Maths related content or get out of here!"?
 
         **INPUTS FOR YOUR REVIEW**
         1. CONTEXT FROM COURSE MATERIAL: {context}
@@ -171,9 +217,10 @@ def run_pdf_mode_pipeline(user_prompt, vector_store, example_text, include_answe
             """
             
             refiner_prompt = PromptTemplate.from_template(refiner_prompt_template_str)
+            
             refiner_final_prompt = refiner_prompt.format(
                 v1_draft=v1_draft,
-                critique=critique_content
+                critique_content=critique_content 
             )
             
             refiner_response_stream = refiner_llm.stream(refiner_final_prompt)
@@ -189,6 +236,10 @@ def run_general_mode_pipeline(user_prompt, example_text, include_answer_key):
     Returns a STREAM of the final text.
     """
     try:
+        is_math = check_if_math_related(user_prompt)
+        if not is_math:
+            return _string_to_stream("### Request Denied\nPlease ask for math-related content only.")
+
         if include_answer_key:
             answer_key_request = "You MUST include a detailed, step-by-step answer key. Separate the questions from the answer key with the tag '---ANSWER KEY---'."
         else:
@@ -219,7 +270,6 @@ def run_general_mode_pipeline(user_prompt, example_text, include_answer_key):
         )
         
         generator_response_stream = generator_llm.stream(generator_final_prompt)
-        
         return generator_response_stream
     
     except Exception as e:
